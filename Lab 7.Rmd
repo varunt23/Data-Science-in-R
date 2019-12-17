@@ -1,0 +1,79 @@
+---
+title: "Lab 7"
+author: "Varun Tanna"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1,4 (Pg. 358); 1,4 (Pgs. 371)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+library(modelr)
+```
+
+
+# Chapter 18 (Pg. 358)
+
+##  Exercise 1
+```{r}
+sim1_loess <- loess(y ~ x, data = sim1)
+
+grid_loess <- sim1 %>%
+  add_predictions(sim1_loess)
+sim1 <-  sim1 %>%
+  add_residuals(sim1_loess, var = "resid_loess") %>%
+  add_predictions(sim1_loess, var = "pred_loess")
+plot_sim1_loess <- 
+  ggplot(sim1, aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(aes(x = x, y = pred), data = grid_loess, colour = "red")
+plot_sim1_loess
+
+
+ggplot(sim1, aes(x = x, y = y)) +
+  geom_point() +
+  geom_smooth(aes(x = x, y = pred), data = grid_loess, colour = "red")
+```
+
+##  Exercise 4
+```{r}
+
+#Showing the absolute values of the residuals makes it easier to view the spread of the residuals.
+#The model assumes that the residuals have mean zero, and using the absolute values of the residuals #effectively doubles the number of residuals
+```
+
+# Chapter 18 (Pg. 371)
+
+##  Exercise 1
+```{r}
+mod2a <- lm(y ~ x - 1, data = sim2)
+mod2 <- lm(y ~ x, data = sim2)
+grid <- sim2 %>%
+  data_grid(x) %>%
+  spread_predictions(mod2, mod2a)
+grid
+```
+The predictions with and without the intercepts are the same
+##  Exercise 4
+```{r}
+mod1 <- lm(y ~ x1 + x2, data = sim4)
+mod2 <- lm(y ~ x1 * x2, data = sim4)
+sim4_mods <- gather_residuals(sim4, mod1, mod2)
+ggplot(sim4_mods, aes(x = resid, colour = model)) +
+  geom_freqpoly(binwidth = 0.5) +
+  geom_rug()
+ggplot(sim4_mods, aes(x = abs(resid), colour = model)) +
+  geom_freqpoly(binwidth = 0.5) +
+  geom_rug()
+
+```
+The residual of mod2 are less spread out but there isn't really much difference in the model.

@@ -1,0 +1,126 @@
+---
+title: "Lab 3"
+author: "Varun Tanna"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1,3 (Pgs. 90-91); 1 (Pg. 93); 2,4 (Pg. 99); 1,2 (Pg. 101); 2,3,5 (Pg. 104)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+# Chapter 5 (Pgs. 90-91)
+
+##  Exercise 1
+```{r}
+diamonds <- diamonds %>% filter( 2< y & y<20 & 2<x &2<z & z<20)
+#looking at the graph of x
+ggplot(diamonds) + geom_freqpoly(aes(x=x), binwidth = .01)
+#looking the graph of y
+ggplot(diamonds) + geom_freqpoly(aes(x=y), binwidth = .01)
+#looking the graph of z
+ggplot(diamonds) + geom_freqpoly(aes(x=z), binwidth = .01)
+#since y and x have the same grapha and z is different then we see that x and y are length and the width and then the z value must be the depth in this scenario
+ggplot(diamonds) + geom_point(aes(x=x, y=y)) + geom_point(aes(x=x, y=z) , color = "red") + coord_fixed()
+
+```
+
+##  Exercise 3
+```{r}
+diamonds %>% filter(carat == .99) %>% count()
+diamonds %>% filter(carat == 1) %>% count()
+#we see that there are 23 that are .99 and there are 1556 that are 1 carat this is probably because the weight of having a one carat diamonds probably leads customers into buying something for a full carat rather than settling for something that is a little bit less quality 
+```
+
+# Chapter 5 (Pg. 93)
+
+##  Exercise 1
+```{r}
+#In a bar chart the NA constitue of a seperate column since it goes by the number of distinct entries that are there on the graph, however sinc ethere is order on the histograms x axis then that means that the na is ignored since it isn't numerical
+```
+
+# Chapter 5 (Pg. 99)
+
+##  Exercise 2
+```{r}
+ggplot(diamonds) + geom_point(aes(x=carat, y = price), color = "blue", alpha = .5)
+ggplot(diamonds) + geom_point(aes(x=depth, y = price), color = "red", alpha = .5)
+ggplot(diamonds) + geom_point(aes(x=table, y = price), color = "green", alpha = .5)
+ggplot(diamonds) + geom_point(aes(x=x, y = price), color = "black", alpha = .5)
+ggplot(diamonds) + geom_point(aes(x=z, y = price), color = "blue", alpha = .5)
+# see that volume and weight are the most important in this scenario
+#need to now compare it with cut since they have similar graphs from what I understand
+ggplot(diamonds) +
+  geom_boxplot(aes(x= cut, y= carat))
+# we thus see that better cut has a lower carat count, which makes the price lower. We would not know this without looking at the carat since the trend is that better cut means lower price which isn't exactly true in this scenario
+
+```
+
+##  Exercise 4
+```{r}
+library(lvplot)
+ggplot(diamonds) + geom_lv(aes(x = cut, y = price))
+# The letter value plot shows more quantiles than the normal boxplot
+```
+
+# Chapter 5 (Pg. 101)
+
+##  Exercise 1
+```{r}
+diamonds %>%
+  count(color, cut) %>%
+  group_by(color) %>%
+  mutate(perc = n/ sum(n)) %>%
+  ggplot(aes(color,cut,fill = perc)) +
+  geom_tile()
+#you need to calculate the percentages to get a sense of cut in color
+```
+
+##  Exercise 2
+```{r}
+library(viridis)
+library(forcats)
+library(nycflights13)
+flights %>%
+  ggplot(aes(x = month, y = dest, fill = dep_delay)) +
+  geom_tile()
+flights %>%
+  mutate(tot_delay = dep_delay + arr_delay) %>%
+  filter(tot_delay > 0) %>%
+  group_by(dest, month) %>%
+  summarize(dep_del_dev = mean(tot_delay, na.rm = T)) %>%
+  filter(n() == 12) %>%
+  ungroup() %>%
+  ggplot(aes(x = factor(month), y = fct_reorder(dest, dep_del_dev), fill = dep_del_dev)) +
+  geom_tile() +
+  scale_fill_viridis()
+#the number of vlaues makes the plot harder to read
+```
+
+# Chapter 5 (Pg. 104)
+
+##  Exercise 2
+```{r}
+ggplot(diamonds, aes(carat, y = ..density.., colour = cut_width(price, 2000))) +
+  geom_freqpoly()
+```
+
+##  Exercise 3
+```{r}
+# the varaince in the small diamonds is very little but the variance in the bigger diamonds is larger which is what i expected since large diamonds are more pricey in larger ranges
+```
+
+##  Exercise 5
+```{r}
+#binned plot categorize continuous measure which is not what we want since we want those distributions to be freely present and not grouped up, thus the scatter plot gives you the range of all the values
+```

@@ -1,0 +1,159 @@
+---
+title: "Lab 4"
+author: "Varun Tanna"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  2,3 (Pg. 151); 2,4 (Pg. 156); 1,2 (Pgs. 160-161); 2 (Pg. 163); 2,3,4 (Pg. 168)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+# Chapter 9 (Pg. 151)
+
+##  Exercise 2
+```{r}
+t2_cases <- filter(table2, type == "cases") %>%
+  rename(cases = count) %>%
+  arrange(country, year)
+t2_population <- filter(table2, type == "population") %>%
+  rename(population = count) %>%
+  arrange(country, year)
+
+
+
+t2_cases_per_cap <- tibble(
+  year = t2_cases$year,
+  country = t2_cases$country,
+  cases = t2_cases$cases,
+  population = t2_population$population
+) %>%
+  mutate(cases_per_cap = (cases / population) * 10000) %>%
+  select(country, year, cases_per_cap)
+
+
+t2_cases_per_cap <- t2_cases_per_cap %>%
+  mutate(type = "cases_per_cap") %>%
+  rename(count = cases_per_cap)
+
+bind_rows(table2, t2_cases_per_cap) %>%
+  arrange(country, year, type, count)
+
+table4c <-
+  tibble(
+    country = table4a$country,
+    `1999` = table4a[["1999"]] / table4b[["1999"]] * 10000,
+    `2000` = table4a[["2000"]] / table4b[["2000"]] * 10000
+  )
+table4c
+```
+Both tables prove difficult in matriculating.This is because table two, although it provides the neccesary information for each year in rows, we need them in columsn to perform the computations needed. And for the table a and b they are nicely split although we see that we have to split them into different tables for every row, making it tedious.
+
+
+##  Exercise 3
+```{r}
+
+table2 %>%
+  filter(type == "cases") %>%
+  ggplot(aes(year, count)) +
+  geom_line(aes(group = country), colour = "grey50") +
+  geom_point(aes(colour = country)) +
+  scale_x_continuous(breaks = unique(table2$year)) +
+  ylab("cases")
+```
+
+# Chapter 9 (Pg. 156)
+
+##  Exercise 2
+```{r}
+#There is no 1999 row which tidy verse interprets 1999 as. Thus we see that we need to put quotations around this in order to access the 1999th column
+```
+
+##  Exercise 4
+```{r}
+
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes", NA, 10,
+  "no", 20, 12
+)
+
+preg_tidy2 <- preg %>%
+  gather(male, female, key = "sex", value = "count", na.rm = TRUE)
+
+preg_tidy2
+```
+
+# Chapter 9 (Pgs. 160-161)
+
+##  Exercise 1
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>%
+  separate(x, c("one", "two", "three"), extra = "drop")
+
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>%
+  separate(x, c("one", "two", "three"), extra = "merge")
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
+  separate(x, c("one", "two", "three"), fill = "right")
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
+  separate(x, c("one", "two", "three"), fill = "left")
+#fill fills in the missing information with NA pushing the data in the direction we see above and the drop and mearge focus on the g value.
+```
+
+##  Exercise 2
+```{r}
+#To keep the input variables and to make a new variable we need to go ahead set remove to false
+```
+
+# Chapter 9 (Pg. 163)
+
+##  Exercise 2
+```{r}
+#This direction tells you if NA should be replaced by either the variable before or after it denoted by down and up
+```
+
+# Chapter 9 (Pg. 168)
+
+##  Exercise 2
+```{r}
+#We see that they will not split into the three columns required.
+```
+
+##  Exercise 3
+```{r}
+who %>% select(1:3) %>% sapply(function(x){length(unique(x))})
+
+who %>% select(1:3) %>%
+  unite(combined, 1:3) %>%
+  select(combined) %>%
+  distinct() %>%
+  nrow()
+```
+
+##  Exercise 4
+```{r}
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1) %>%
+  group_by(country, year, sex) %>%
+  summarize(total_case = sum(value)) %>%
+  unite(country_sex, country, sex, remove = FALSE) %>%
+  ggplot() +
+  geom_line(mapping = aes(x = year, y = total_case, color = sex,
+                          group = country_sex))
+```

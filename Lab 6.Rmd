@@ -1,0 +1,205 @@
+---
+title: "Lab 6"
+author: "Varun Tanna"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  4 (Pg. 302); 1 (Pgs. 316-317); 1 (Pgs. 328-329); 1, 2 (Pgs. 353-354)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+# Chapter 16 (Pg. 302)
+
+##  Exercise 4
+
+### a)
+```{r}
+library(modelr)
+
+hold <- c(3,4,8,9)
+fun1 <- function(x) {
+  return(x[length(x)])
+}
+
+fun1(hold)
+```
+
+### b)
+```{r}
+fun2 <- function(x){
+  
+  return(x[seq(2, length(x), by = 2)])
+}
+fun2(hold)
+```
+
+### c)
+```{r}
+fun3 <- function(x){
+  
+  end <- length(x)-1
+  
+  return(x[1:end])
+  
+}
+
+fun3(hold)
+```
+
+### d)
+```{r}
+fun4 <- function(x){
+  indices <- which(x %% 2 ==0) 
+return( x[indices])
+
+}
+
+fun4(hold)
+```
+
+# Chapter 17 (Pgs. 316-317)
+
+##  Exercise 1
+
+### a)
+```{r}
+temp <- data.frame(averages = c(0))
+
+for(i in 1:ncol(mtcars)){
+  
+  temp1 <- mean(mtcars[,i])
+  
+  temp <- rbind(temp, temp1)
+}
+temp 
+```
+
+### b)
+```{r}
+temp <- data.frame(type = c(0))
+library(tidyverse)
+library(Stat2Data)
+library(nycflights13)
+data <- as.data.frame(nycflights13::flights)
+
+
+for(i in 1:c(ncol(data))){
+  type = class(data[,i])
+  temp[i, 'type'] <- type[1]
+  }
+
+temp
+```
+
+### c)
+```{r}
+temp <- data.frame(numberunique = c(0))
+library(tidyverse)
+library(Stat2Data)
+library(nycflights13)
+
+
+for(i in 1:c(ncol(iris))){
+  temp[i, 'numberunique'] <- length(unique(iris[,i]))
+  }
+
+temp
+```
+
+### d)
+```{r}
+list = c(-10, 0, 10, 100)
+
+temp <- data.frame(first = c(0), second = c(0), third = c(0), fourth = c(0))
+
+for(i in 1:length(list)){
+  
+  nums <- rnorm(10, mean = list[i], sd = 1)
+  temp[1:10, i] <- nums
+}
+
+temp
+```
+
+# Chapter 17 (Pgs. 328-329)
+
+##  Exercise 1
+
+### a)
+```{r}
+apply(mtcars,   2, FUN = mean)
+```
+
+### b)
+```{r}
+library(nycflights13)
+flights <- nycflights13::flights
+apply(flights, 2, FUN = class)
+```
+
+### c)
+```{r}
+func1 <- function(x){
+  
+  return(length(unique(x)))
+}
+
+apply(iris, 2, FUN = func1)
+```
+
+### d)
+```{r}
+func2 <- function(x){
+  
+  return(rnorm(10, mean = x, sd = 1))
+}
+
+
+sapply(list,  FUN = func2)
+```
+
+# Chapter 18 (Pgs. 353-354)
+
+##  Exercise 1
+```{r}
+tibs <- tibble(
+  x = rep(1:10, each = 3), 
+  y = x*1.5 + 6 + rt(length(x), df = 2)
+  
+)
+
+  fit <- lm(y ~ x, tibs)
+  summary(fit)
+```
+```{r}
+plot(x = tibs$x, y = tibs$y)
+```
+model looks pretty linear and appropriate
+##  Exercise 2
+```{r}
+make_prediction <- function(a, data){
+  
+  a[1] + data$x*a[2]
+}
+
+measure_distance <- function(mod, data){
+
+  diff <- data$y - make_prediction(mod, data)
+  mean(abs(diff))
+}
+
+
+optim(c(0,0), measure_distance, data = tibs)
+```
+different paremeters

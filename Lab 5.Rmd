@@ -1,0 +1,61 @@
+---
+title: "Lab 5"
+author: "Varun Tanna"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1,3 (Pg. 227); 2 (Pg. 232); 1,2 (Pg. 235); 
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+# Chapter 12 (Pg. 227)
+
+##  Exercise 1
+```{r}
+ggplot(gss_cat, aes(x = rincome)) + geom_bar() + scale_x_discrete(drop = FALSE)
+```
+The x axis is messed up since there are too many bins for the bar chart to show clearly
+##  Exercise 3
+```{r}
+table(gss_cat$relig, gss_cat$denom)
+ggplot(gss_cat, aes(denom, relig)) + geom_jitter()
+```
+In this we see that the denomination in this case only applies to the prostestants
+# Chapter 12 (Pg. 232)
+
+##  Exercise 2
+```{r}
+head(gss_cat)
+```
+Principled Ordered Predictors: year,age, rincome, tvhours
+Abritary Ordered Factors:denom, relig, partyid, race and marital
+
+# Chapter 12 (Pg. 235)
+
+##  Exercise 1
+```{r}
+gss_cat <- gss_cat %>% mutate(partyid = fct_collapse(partyid, other = c("No answer", "Don't know", "Other party"), ind = c("Independent", "Ind,near rep", "Ind,near dem"), rep = c("Strong republican", "Not str republican"), dem = c("Strong democrat", "Not str democrat")))
+
+
+
+gss.final <- gss_cat %>% group_by(partyid, year) %>% summarise(total = n() )
+gss.final
+
+ggplot(gss.final, aes(year, total)) + geom_point() + geom_line(aes(colour = partyid))
+```
+
+##  Exercise 2
+```{r}
+#by combining the bins into categories which span a larger amount we are able to reduce th large distribution in this situation.
+```
